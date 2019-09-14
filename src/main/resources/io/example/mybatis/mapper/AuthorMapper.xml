@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.example.mybatis.mapper.AuthorMapper">
+
+    <resultMap id="resultAuthor" type="io.example.mybatis.model.Author">
+        <id property="id" column="authorID"/>
+        <result property="firstName" column="authorFirstName"/>
+        <result property="lastName" column="authorLastName"/>
+        <collection property="books" column="authorID" javaType="ArrayList" ofType="io.example.mybatis.model.Book">
+            <id property="id" column="bookId"/>
+            <result property="title" column="bookTitle"/>
+        </collection>
+        <collection property="users" column="authorID" javaType="ArrayList" ofType="io.example.mybatis.model.User">
+            <id property="id" column="userId"/>
+            <result property="firstName" column="userFirstName"/>
+            <result property="lastName" column="userLastName"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="selectAuthorBestPractice" resultMap="resultAuthor">
+    	SELECT AUTHOR.ID         AS authorID,
+        AUTHOR.FIRST_NAME as authorFirstName,
+        AUTHOR.LAST_NAME  as authorLastName,
+        B2.ID             as bookId,
+        B2.TITLE          as bookTitle,
+        NULL              as userId,
+        NULL              as userFirstName,
+        NULL              as userLastName
+        FROM AUTHOR
+            left JOIN AUTHOR_BOOK AB on AUTHOR.ID = AB.AUTHOR_ID
+            left JOIN BOOK B2 on AB.BOOK_ID = B2.ID
+            UNION
+        SELECT AUTHOR.ID         AS authorID,
+        AUTHOR.FIRST_NAME as authorFirstName,
+        AUTHOR.LAST_NAME  as authorLastName,
+        NULL              as bookId,
+        NULL              as bookTitle,
+        U.ID              as userId,
+        U.FIRST_NAME      as userFirstName,
+        U.LAST_NAME       as userLastName
+        FROM AUTHOR
+            left join AUTHOR_USERS AU on AUTHOR.ID = AU.AUTHOR_ID
+            left join USERS U on AU.USER_ID = U.ID
+    </select>
+
+</mapper>
